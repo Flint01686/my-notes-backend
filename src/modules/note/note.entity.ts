@@ -13,4 +13,9 @@ export class Note {
 
   @Column('text', { array: true, default: '{}' })
   tags: string[];
+
+  @Column({
+    nullable: true,
+  })
+  owner?: string;
 }
