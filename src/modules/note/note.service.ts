@@ -11,12 +11,10 @@ export class NoteService {
     private noteRepository: Repository<Note>,
   ) {}
 
-  async findAllById({ id }: UserDto): Promise<Note[]> {
+  async findAllByOwner({ id }: UserDto): Promise<Note[]> {
     return await this.noteRepository.find({
       where: {
-        owner: {
-          id,
-        },
+        owner: id,
       },
     });
   }

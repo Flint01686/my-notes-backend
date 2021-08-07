@@ -58,7 +58,7 @@ export class NoteController {
   @Get()
   @UseGuards(AuthGuard())
   findAll(@Req() req: any) {
-    return this.noteService.findAllById(<UserDto>req.user);
+    return this.noteService.findAllByOwner(<UserDto>req.user);
   }
 
   @Get('all')
