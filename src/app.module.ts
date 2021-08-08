@@ -12,11 +12,12 @@ import { UsersModule } from './modules/user/user.module';
     UsersModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: 'ec2-52-23-45-36.compute-1.amazonaws.com',
       port: 5432,
-      username: 'postgres',
-      password: 'qwerty',
-      database: 'MyNotes',
+      username: 'pqztamsrucasxy',
+      password:
+        '0b9a17ce86519e81b645aa2193b3acbabfb7fd3146850cec5a46760cddea0b9c',
+      database: 'dfabdr0i9dg462',
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
