@@ -11,6 +11,6 @@ export class FileUploadConfig {
   }
 
   static destinationPath(req, file, cb) {
-    cb(null, PUBLIC_PATH);
+    cb(null, '../public');
   }
 }
