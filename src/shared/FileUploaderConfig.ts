@@ -1,3 +1,5 @@
+import { PUBLIC_PATH } from "src/constants";
+
 export class FileUploadConfig {
   static MaxFilesCount = 9;
   static customFileName(req, file, cb) {
@@ -9,6 +11,6 @@ export class FileUploadConfig {
   }
 
   static destinationPath(req, file, cb) {
-    cb(null, './public');
+    cb(null, PUBLIC_PATH);
   }
 }
