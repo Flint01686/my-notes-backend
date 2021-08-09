@@ -1,4 +1,4 @@
-import { PUBLIC_PATH } from "src/constants";
+import { PUBLIC_PATH } from 'src/constants';
 
 export class FileUploadConfig {
   static MaxFilesCount = 9;
