@@ -20,6 +20,7 @@ import { UsersModule } from './modules/user/user.module';
       database: 'dfabdr0i9dg462',
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
+      ssl: { rejectUnauthorized: false },
     }),
     NoteModule,
   ],
