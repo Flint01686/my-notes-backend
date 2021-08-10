@@ -4,7 +4,7 @@ import { NoteController } from './note.controller';
 import { Note } from './note.entity';
 import { NoteService } from './note.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { PUBLIC_PATH } from 'src/constants';
+import { PUBLIC_PATH } from '../../constants';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../user/user.module';
 

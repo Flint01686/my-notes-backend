@@ -86,9 +86,9 @@ export class NoteController {
     @Req() req: any,
     @UploadedFiles() attachments: Array<Express.Multer.File>,
   ) {
-    this.noteService.add(
-      convertDtoToPostgre(<UserDto>req.user, createNoteDto, attachments),
-    );
+    this.noteService
+      .add(convertDtoToPostgre(<UserDto>req.user, createNoteDto, attachments))
+      .catch((e) => console.log(e));
   }
 
   @Delete(':id')

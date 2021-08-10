@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { UserDto } from '../user/dto/user.dto';
 import { Note } from './note.entity';
 
@@ -27,15 +27,15 @@ export class NoteService {
     return this.noteRepository.findOne(id);
   }
 
-  async remove(id: string): Promise<void> {
-    await this.noteRepository.delete(id);
+  async remove(id: string): Promise<DeleteResult> {
+    return await this.noteRepository.delete(id);
   }
 
-  async add(note: Note): Promise<void> {
-    await this.noteRepository.save(note);
+  async add(note: Note): Promise<Note> {
+    return await this.noteRepository.save(note);
   }
 
-  async update(id: string, note: Note): Promise<void> {
-    await this.noteRepository.update(id, note);
+  async update(id: string, note: Note): Promise<UpdateResult> {
+    return await this.noteRepository.update(id, note);
   }
 }
