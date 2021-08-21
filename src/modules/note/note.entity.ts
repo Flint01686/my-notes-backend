@@ -18,4 +18,9 @@ export class Note {
     nullable: true,
   })
   owner?: string;
+
+  @Column({
+    nullable: true,
+  })
+  isPinned: boolean;
 }

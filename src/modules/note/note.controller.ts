@@ -21,8 +21,7 @@ import { CreateNoteDto } from './dto/create-note.dto';
 import { Note } from './note.entity';
 import { NoteService } from './note.service';
 
-const convertDtoToPostgre = (
-  user: UserDto,
+const basicDtoConverter = (
   noteDto: CreateNoteDto,
   attachments: Array<Express.Multer.File>,
 ) => {
@@ -31,9 +30,26 @@ const convertDtoToPostgre = (
 
   newNote.attachments = attachments.map((item) => item.filename);
 
+  if (noteDto.localAttachments)
+    newNote.attachments = newNote.attachments.concat(
+      JSON.parse(noteDto.localAttachments),
+    );
+
   newNote.tags = noteDto.tags ? JSON.parse(noteDto.tags) : [];
 
+  newNote.isPinned = noteDto.isPinned === 'true';
+
+  return newNote;
+};
+
+const convertDtoToPostgre = (
+  user: UserDto,
+  noteDto: CreateNoteDto,
+  attachments: Array<Express.Multer.File>,
+) => {
+  const newNote = basicDtoConverter(noteDto, attachments);
   newNote.owner = user.id;
+
   return newNote;
 };
 
@@ -41,14 +57,7 @@ function convertDtoPatchToPostgre(
   noteDto: CreateNoteDto,
   attachments: Array<Express.Multer.File>,
 ): Note {
-  const newNote = new Note();
-  newNote.text = noteDto.text ?? '';
-
-  newNote.attachments = attachments.map((item) => item.filename);
-
-  newNote.tags = noteDto.tags ? JSON.parse(noteDto.tags) : [];
-
-  return newNote;
+  return basicDtoConverter(noteDto, attachments);
 }
 
 @Controller('note')
@@ -61,14 +70,54 @@ export class NoteController {
     return this.noteService.findAllByOwner(<UserDto>req.user);
   }
 
+  @Get('/page/:page')
+  @UseGuards(AuthGuard())
+  findPage(@Req() req: any, @Param('page') page: number) {
+    return this.noteService.findAllInPage(<UserDto>req.user, page);
+  }
+
+  @Get('/pagef/:page/:filter')
+  @UseGuards(AuthGuard())
+  findPageWithFilter(
+    @Req() req: any,
+    @Param('page') page: number,
+    @Param('filter') filter: string,
+  ) {
+    return this.noteService.findAllInPageByFilter(
+      <UserDto>req.user,
+      page,
+      filter,
+    );
+  }
+
+  //TODO: do
+  @Get('/pagec/:filter')
+  @UseGuards(AuthGuard())
+  findPagesCountByFilter(@Req() req: any, @Param('filter') filter: string) {
+    return this.noteService.findePagesCount(<UserDto>req.user, filter);
+  }
+
+  @Get('/pinned')
+  @UseGuards(AuthGuard())
+  findPinned(@Req() req: any) {
+    return this.noteService.findPinnedByOwner(<UserDto>req.user);
+  }
+
   @Get('all')
   getAllNotes(): Promise<Note[]> {
     return this.noteService.findAll();
   }
 
   @Get(':id')
-  getOneNote(@Param('id') id: string): Promise<Note> {
-    return this.noteService.findOne(id);
+  @UseGuards(AuthGuard())
+  getOneNote(@Req() req: any, @Param('id') id: number) {
+    return this.noteService.findOne(<UserDto>req.user, id);
+  }
+
+  @Post(':id')
+  @UseGuards(AuthGuard())
+  cloneNote(@Req() req: any, @Param('id') id: number) {
+    return this.noteService.cloneOne(<UserDto>req.user, id);
   }
 
   @Post()
@@ -93,8 +142,8 @@ export class NoteController {
 
   @Delete(':id')
   @UseGuards(AuthGuard())
-  deleteNote(@Param('id') id: string) {
-    this.noteService.remove(id);
+  deleteNote(@Param('id') id: string, @Req() req: any) {
+    this.noteService.remove(<UserDto>req.user, id);
   }
 
   @Put(':id')
@@ -108,13 +157,16 @@ export class NoteController {
     }),
   )
   updateNote(
+    @Req() req: any,
     @Param('id') id: string,
     @Body() createNoteDto: CreateNoteDto,
     @UploadedFiles() attachments: Array<Express.Multer.File>,
   ) {
     this.noteService.update(
+      <UserDto>req.user,
       id,
       convertDtoPatchToPostgre(createNoteDto, attachments),
+      JSON.parse(createNoteDto.localAttachments),
     );
   }
 }
