@@ -25,8 +25,6 @@ export class NoteService {
   }
 
   async findPinnedByOwner({ id }: UserDto): Promise<Note[]> {
-    console.log(id);
-
     return await this.noteRepository.find({
       where: {
         owner: id,
@@ -64,7 +62,6 @@ export class NoteService {
     filter: string,
   ): Promise<Note[]> {
     if (filter === '') filter = '*';
-    console.log(filter);
     return await this.noteRepository
       .createQueryBuilder('note')
       .where('note.owner= :id', { id: id })
