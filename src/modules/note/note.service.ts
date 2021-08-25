@@ -25,6 +25,8 @@ export class NoteService {
   }
 
   async findPinnedByOwner({ id }: UserDto): Promise<Note[]> {
+    console.log(id);
+
     return await this.noteRepository.find({
       where: {
         owner: id,
@@ -33,28 +35,27 @@ export class NoteService {
     });
   }
 
-  async findePagesCount({ id }: UserDto, filter: string): Promise<number> {
-    return (
-      (await this.noteRepository
-        .createQueryBuilder('note')
-        .select('SUM(note.id)', 'sum')
-        .where('note.owner= :id', { id: id })
-        .andWhere(
-          new Brackets((qb) => {
-            qb.where('note.text like :filter', {
-              filter: `%${filter}%`,
-            }).orWhere(':filter LIKE ANY (note.tags)', {
-              filter: filter,
-            });
-          }),
-        )
-        .orderBy({
-          'note.isPinned': 'DESC',
-          'note.id': 'DESC',
-        })
-        .getRawOne()) / NOTE_ON_PAGE_COUNT
-    );
-    // .then((ans) => ans);
+  async pagesCount({ id }: UserDto): Promise<number> {
+    return await this.noteRepository
+      .createQueryBuilder('note')
+      .where('note.owner= :id', { id: id })
+      .getCount();
+  }
+
+  async findPagesCount({ id }: UserDto, filter: string): Promise<number> {
+    return this.noteRepository
+      .createQueryBuilder('note')
+      .where('note.owner= :id', { id: id })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('note.text like :filter', {
+            filter: `${filter}%`,
+          }).orWhere(':filter LIKE ANY (note.tags)', {
+            filter: filter,
+          });
+        }),
+      )
+      .getCount();
   }
 
   async findAllInPageByFilter(
@@ -70,7 +71,7 @@ export class NoteService {
       .andWhere(
         new Brackets((qb) => {
           qb.where('note.text like :filter', {
-            filter: `%${filter}%`,
+            filter: `${filter}%`,
           }).orWhere(':filter LIKE ANY (note.tags)', {
             filter: filter,
           });
@@ -150,21 +151,21 @@ export class NoteService {
     });
   }
 
-  async remove(user: UserDto, noteId: string): Promise<DeleteResult> {
-    return await this.findAllByOwner(user).then((res) => {
-      let allAttacnments = [];
-      res.forEach((note) => {
-        if (note.id.toString() !== noteId)
-          allAttacnments = allAttacnments.concat(note.attachments);
-      });
-      return this.noteRepository.findOne(noteId).then((res) => {
-        res.attachments.forEach((attach) => {
-          if (!allAttacnments.includes(attach))
-            fs.unlinkSync(join(PUBLIC_PATH, attach));
-        });
-        return this.noteRepository.delete(noteId);
-      });
+  async remove(user: UserDto, noteId: string): Promise<any> {
+    const allNotes = await this.findAllByOwner(user);
+    let allAttacnments = [];
+    allNotes.forEach((note) => {
+      if (note.id.toString() !== noteId)
+        allAttacnments = allAttacnments.concat(note.attachments);
     });
+    const currentNote = await this.noteRepository.findOne(noteId);
+    if (Array.isArray(currentNote.attachments))
+      currentNote.attachments.forEach((attach) => {
+        if (!allAttacnments.includes(attach))
+          fs.unlinkSync(join(PUBLIC_PATH, attach));
+      });
+    const delRes = await this.noteRepository.delete(noteId);
+    return delRes;
   }
 
   async add(note: Note): Promise<Note> {

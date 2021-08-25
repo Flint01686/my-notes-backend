@@ -90,11 +90,16 @@ export class NoteController {
     );
   }
 
-  //TODO: do
   @Get('/pagec/:filter')
   @UseGuards(AuthGuard())
   findPagesCountByFilter(@Req() req: any, @Param('filter') filter: string) {
-    return this.noteService.findePagesCount(<UserDto>req.user, filter);
+    return this.noteService.findPagesCount(<UserDto>req.user, filter);
+  }
+
+  @Get('/pagecnt')
+  @UseGuards(AuthGuard())
+  findPagesCount(@Req() req: any) {
+    return this.noteService.pagesCount(<UserDto>req.user);
   }
 
   @Get('/pinned')
@@ -143,7 +148,7 @@ export class NoteController {
   @Delete(':id')
   @UseGuards(AuthGuard())
   deleteNote(@Param('id') id: string, @Req() req: any) {
-    this.noteService.remove(<UserDto>req.user, id);
+    return this.noteService.remove(<UserDto>req.user, id);
   }
 
   @Put(':id')
@@ -162,7 +167,7 @@ export class NoteController {
     @Body() createNoteDto: CreateNoteDto,
     @UploadedFiles() attachments: Array<Express.Multer.File>,
   ) {
-    this.noteService.update(
+    return this.noteService.update(
       <UserDto>req.user,
       id,
       convertDtoPatchToPostgre(createNoteDto, attachments),
