@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Req, Res } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { UserDto } from '../user/dto/user.dto';
@@ -189,13 +189,5 @@ export class NoteService {
         return this.noteRepository.update(id, note);
       });
     });
-    // const prevNoteState = this.noteRepository.findOne(id);
-    // prevNoteState.then((res) => {
-    //   res.attachments.forEach((item) => {
-    //     if (!filesForSave.includes(item))
-    //       fs.unlinkSync(join(PUBLIC_PATH, item));
-    //   });
-    // });
-    // return await this.noteRepository.update(id, note);
   }
 }

@@ -13,13 +13,14 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import AWS from 'aws-sdk';
 import { FileUploadConfig } from '../../shared/FileUploaderConfig';
 
 import { UserDto } from '../user/dto/user.dto';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { Note } from './note.entity';
 import { NoteService } from './note.service';
+import * as S3Storage from 'multer-s3';
 
 const basicDtoConverter = (
   noteDto: CreateNoteDto,
@@ -59,6 +60,13 @@ function convertDtoPatchToPostgre(
 ): Note {
   return basicDtoConverter(noteDto, attachments);
 }
+
+const AWS_S3_BUCKET_NAME = 'noteimg';
+const s3 = new AWS.S3();
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
 
 @Controller('note')
 export class NoteController {
@@ -128,17 +136,19 @@ export class NoteController {
   @Post()
   @UseGuards(AuthGuard())
   @UseInterceptors(
-    FilesInterceptor('attachments', FileUploadConfig.MaxFilesCount, {
-      storage: diskStorage({
-        destination: FileUploadConfig.destinationPath,
-        filename: FileUploadConfig.customFileName,
+    FilesInterceptor('files', FileUploadConfig.MaxFilesCount, {
+      storage: S3Storage({
+        bucket: AWS_S3_BUCKET_NAME,
+        s3: s3,
+        acl: 'public-read',
+        key: FileUploadConfig.customFileName,
       }),
     }),
   )
   addNote(
     @Body() createNoteDto: CreateNoteDto,
     @Req() req: any,
-    @UploadedFiles() attachments: Array<Express.Multer.File>,
+    @UploadedFiles() attachments,
   ) {
     this.noteService
       .add(convertDtoToPostgre(<UserDto>req.user, createNoteDto, attachments))
@@ -154,10 +164,12 @@ export class NoteController {
   @Put(':id')
   @UseGuards(AuthGuard())
   @UseInterceptors(
-    FilesInterceptor('attachments', FileUploadConfig.MaxFilesCount, {
-      storage: diskStorage({
-        destination: FileUploadConfig.destinationPath,
-        filename: FileUploadConfig.customFileName,
+    FilesInterceptor('files', FileUploadConfig.MaxFilesCount, {
+      storage: S3Storage({
+        bucket: AWS_S3_BUCKET_NAME,
+        s3: s3,
+        acl: 'public-read',
+        key: FileUploadConfig.customFileName,
       }),
     }),
   )
