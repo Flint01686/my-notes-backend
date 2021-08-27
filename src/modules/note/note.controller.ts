@@ -21,15 +21,13 @@ import { CreateNoteDto } from './dto/create-note.dto';
 import { Note } from './note.entity';
 import { NoteService } from './note.service';
 import * as S3Storage from 'multer-s3';
+import { S3 } from 'aws-sdk';
 
-const basicDtoConverter = (
-  noteDto: CreateNoteDto,
-  attachments: Array<Express.Multer.File>,
-) => {
+const basicDtoConverter = (noteDto: CreateNoteDto, attachments: Array<any>) => {
   const newNote = new Note();
   newNote.text = noteDto.text ?? '';
 
-  newNote.attachments = attachments.map((item) => item.filename);
+  newNote.attachments = attachments.map((item) => item.key);
 
   if (noteDto.localAttachments)
     newNote.attachments = newNote.attachments.concat(
@@ -62,11 +60,7 @@ function convertDtoPatchToPostgre(
 }
 
 const AWS_S3_BUCKET_NAME = 'noteimg';
-const s3 = new AWS.S3();
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-});
+const s3 = new S3();
 
 @Controller('note')
 export class NoteController {
@@ -150,6 +144,7 @@ export class NoteController {
     @Req() req: any,
     @UploadedFiles() attachments,
   ) {
+    console.log(attachments);
     this.noteService
       .add(convertDtoToPostgre(<UserDto>req.user, createNoteDto, attachments))
       .catch((e) => console.log(e));
