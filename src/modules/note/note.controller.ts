@@ -23,7 +23,7 @@ import { NoteService } from './note.service';
 import * as S3Storage from 'multer-s3';
 import { S3 } from 'aws-sdk';
 
-const basicDtoConverter = (noteDto: CreateNoteDto, attachments: Array<any>) => {
+const basicDtoConverter = (noteDto: CreateNoteDto, attachments) => {
   const newNote = new Note();
   newNote.text = noteDto.text ?? '';
 
