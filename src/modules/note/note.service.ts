@@ -68,11 +68,14 @@ export class NoteService {
       .where('note.owner= :id', { id: id })
       .andWhere(
         new Brackets((qb) => {
-          qb.where('note.text like :filter', {
-            filter: `${filter}%`,
-          }).orWhere(':filter LIKE ANY (note.tags)', {
+          qb.where("note.text ilike '%' || :filter || '%'", {
             filter: filter,
-          });
+          }).orWhere(
+            "array_to_string(note.tags, chr(10)) iLIKE '%' || :filter || '%'",
+            {
+              filter: filter,
+            },
+          );
         }),
       )
       .orderBy({
