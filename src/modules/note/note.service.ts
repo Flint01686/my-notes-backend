@@ -6,6 +6,7 @@ import { Note } from './note.entity';
 import * as fs from 'fs';
 import { join } from 'path';
 import { PUBLIC_PATH } from 'src/constants';
+import { deleteAwsImg } from './s3.service';
 
 const NOTE_ON_PAGE_COUNT = 9;
 
@@ -158,8 +159,8 @@ export class NoteService {
     const currentNote = await this.noteRepository.findOne(noteId);
     if (Array.isArray(currentNote.attachments))
       currentNote.attachments.forEach((attach) => {
-        if (!allAttacnments.includes(attach))
-          fs.unlinkSync(join(PUBLIC_PATH, attach));
+        if (!allAttacnments.includes(attach)) deleteAwsImg(attach);
+        // fs.unlinkSync(join(PUBLIC_PATH, attach));
       });
     const delRes = await this.noteRepository.delete(noteId);
     return delRes;
@@ -183,8 +184,8 @@ export class NoteService {
       });
       return this.noteRepository.findOne(id).then((res) => {
         res.attachments.forEach((attach) => {
-          if (!allAttacnments.includes(attach))
-            fs.unlinkSync(join(PUBLIC_PATH, attach));
+          if (!allAttacnments.includes(attach)) deleteAwsImg(attach);
+          // fs.unlinkSync(join(PUBLIC_PATH, attach));
         });
         return this.noteRepository.update(id, note);
       });

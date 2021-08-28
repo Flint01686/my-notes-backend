@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import AWS from 'aws-sdk';
 import { FileUploadConfig } from '../../shared/FileUploaderConfig';
 
 import { UserDto } from '../user/dto/user.dto';
@@ -22,6 +21,7 @@ import { Note } from './note.entity';
 import { NoteService } from './note.service';
 import * as S3Storage from 'multer-s3';
 import { S3 } from 'aws-sdk';
+import { AWS_S3_BUCKET_NAME } from 'src/constants';
 
 const basicDtoConverter = (noteDto: CreateNoteDto, attachments) => {
   const newNote = new Note();
@@ -59,7 +59,6 @@ function convertDtoPatchToPostgre(
   return basicDtoConverter(noteDto, attachments);
 }
 
-const AWS_S3_BUCKET_NAME = 'noteimg';
 const s3 = new S3();
 
 @Controller('note')
@@ -130,7 +129,7 @@ export class NoteController {
   @Post()
   @UseGuards(AuthGuard())
   @UseInterceptors(
-    FilesInterceptor('files', FileUploadConfig.MaxFilesCount, {
+    FilesInterceptor('attachments', FileUploadConfig.MaxFilesCount, {
       storage: S3Storage({
         bucket: AWS_S3_BUCKET_NAME,
         s3: s3,
@@ -159,7 +158,7 @@ export class NoteController {
   @Put(':id')
   @UseGuards(AuthGuard())
   @UseInterceptors(
-    FilesInterceptor('files', FileUploadConfig.MaxFilesCount, {
+    FilesInterceptor('attachments', FileUploadConfig.MaxFilesCount, {
       storage: S3Storage({
         bucket: AWS_S3_BUCKET_NAME,
         s3: s3,
@@ -172,7 +171,7 @@ export class NoteController {
     @Req() req: any,
     @Param('id') id: string,
     @Body() createNoteDto: CreateNoteDto,
-    @UploadedFiles() attachments: Array<Express.Multer.File>,
+    @UploadedFiles() attachments,
   ) {
     return this.noteService.update(
       <UserDto>req.user,

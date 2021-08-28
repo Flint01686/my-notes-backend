@@ -1,15 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { config } from 'aws-sdk';
 import { AppModule } from './app.module';
-
-const AWS_ACCESS_KEY_ID = 'AKIA3OW5KACYPENYPY4R';
-const AWS_SECRET_ACCESS_KEY = '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';
+import {
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
+  AWS_REGION,
+} from './constants';
 
 async function bootstrap() {
   config.update({
     accessKeyId: AWS_ACCESS_KEY_ID,
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
-    region: 'us-east-1',
+    region: AWS_REGION,
   });
 
   const app = await NestFactory.create(AppModule);
