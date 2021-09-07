@@ -6,10 +6,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConfig } from './constants';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { PassRestore } from './passwordRestore.entity';
 
 @Module({
   providers: [AuthService, JwtStrategy],
   imports: [
+    TypeOrmModule.forFeature([PassRestore]),
     UsersModule,
     PassportModule,
     PassportModule.register({

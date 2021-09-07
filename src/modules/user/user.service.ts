@@ -1,12 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
 import { toUserDto } from '../../shared/mapper';
 import { LoginUserDto } from './dto/login-user.dto';
 import * as bcrypt from 'bcrypt';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -38,6 +39,16 @@ export class UsersService {
   async findOne(options?: object): Promise<UserEntity> {
     const user = await this.userRepository.findOne(options);
     return user;
+  }
+
+  async resetPassword({
+    email,
+    password,
+  }: ResetPasswordDto): Promise<UpdateResult> {
+    const user = await this.userRepository.findOne({
+      email: email,
+    });
+    return this.userRepository.update(user.id, { ...user, password: password });
   }
 
   async findByLogin({ login, password }: LoginUserDto): Promise<UserDto> {
