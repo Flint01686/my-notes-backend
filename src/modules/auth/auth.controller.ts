@@ -47,18 +47,17 @@ export class AuthController {
   @Post('giveaccesstoreset')
   public async giveAccess(
     @Body() tokenData: { token: string },
-  ): Promise<string> {
+  ): Promise<boolean> {
     const result = await this.authService.giveAccessByToken(tokenData.token);
-    return result.access ? result.email : null;
+    return result.access;
   }
 
   @Post('sendmail')
   public async sendMail(@Body() SendEmail: SendEmailDto): Promise<any> {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const tokenData = await this.authService.createToken(SendEmail.email);
-    // sgMail.setApiKey(
-    //   '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',
-    // );
+    if (!tokenData) return null;
+    console.log('td', tokenData, '/td');
 
     const msg = {
       to: SendEmail.email, // Change to your recipient

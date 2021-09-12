@@ -41,14 +41,15 @@ export class UsersService {
     return user;
   }
 
-  async resetPassword({
-    email,
-    password,
-  }: ResetPasswordDto): Promise<UpdateResult> {
+  async resetPassword({ email, password }): Promise<UpdateResult> {
     const user = await this.userRepository.findOne({
       email: email,
     });
-    return this.userRepository.update(user.id, { ...user, password: password });
+    const hash = await bcrypt.hash(password, 10);
+    return await this.userRepository.update(user.id, {
+      ...user,
+      password: hash,
+    });
   }
 
   async findByLogin({ login, password }: LoginUserDto): Promise<UserDto> {

@@ -29,7 +29,6 @@ export interface LoginStatus {
 
 export interface AccessStatus {
   access: boolean;
-  email: string;
 }
 
 @Injectable()
@@ -76,14 +75,23 @@ export class AuthService {
       message: 'password reset command succesfull',
     };
     try {
-      await this.usersService.resetPassword(resetPasswordDto);
+      const infoByToken = await this.passRestoreRepo.findOne({
+        token: resetPasswordDto.token,
+      });
+      await this.usersService.resetPassword({
+        email: infoByToken.email,
+        password: resetPasswordDto.password,
+      });
+      await this.passRestoreRepo.delete(infoByToken.email);
     } catch (err) {
       status = {
         success: false,
         message: err,
       };
+    } finally {
+      console.log(status);
+      return status;
     }
-    return status;
   }
 
   async register(userDto: CreateUserDto): Promise<RegistrationStatus> {
@@ -105,17 +113,14 @@ export class AuthService {
   async giveAccessByToken(token: string) {
     let accessStatus: AccessStatus = {
       access: false,
-      email: '',
     };
     try {
-      const infoByToken = await this.passRestoreRepo.findOneOrFail({
-        where: { token },
+      const ans = await this.passRestoreRepo.findOne({
+        token: token,
       });
       accessStatus = {
-        access: true,
-        email: infoByToken.email,
+        access: ans !== undefined,
       };
-      await this.passRestoreRepo.delete(infoByToken.email);
     } catch (e) {
       console.error(e);
     } finally {
@@ -124,13 +129,17 @@ export class AuthService {
   }
 
   async createToken(email: string) {
+    let res;
     try {
-      return await this.passRestoreRepo.findOneOrFail(email);
+      const chek = await this.usersService.findOne({ email: email });
+      if (!chek) return null;
+      res = await this.passRestoreRepo.findOneOrFail(email);
     } catch (e) {
-      return await this.passRestoreRepo.create({
+      res = await this.passRestoreRepo.save({
         email: email,
         token: uuidv4(),
       });
     }
+    return res;
   }
 }
