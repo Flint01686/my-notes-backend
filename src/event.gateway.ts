@@ -35,9 +35,10 @@ export class EventGateway
   }
 
   afterInit(server: Server) {
-    this.logger.log('wss ok, bruh');
+    this.logger.log('wss ok, bruh ' + CLIENT_HOST);
   }
 
+  // @UseGuards(AuthGuard())
   @SubscribeMessage('refresher')
   handleMessage(client: Socket, command: string): void {
     this.ws.emit('refresher', command);
