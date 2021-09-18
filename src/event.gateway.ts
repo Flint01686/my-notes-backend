@@ -14,7 +14,7 @@ import { CLIENT_HOST } from './constants';
 
 @WebSocketGateway({
   cors: {
-    origin: `http://${CLIENT_HOST}`,
+    origin: `https://${CLIENT_HOST}`,
     methods: ['GET', 'POST'],
     allowedHeaders: ['2911a686-181a-11ec-9621-0242ac130002'],
     credentials: true,
