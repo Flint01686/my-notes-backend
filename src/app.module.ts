@@ -6,6 +6,7 @@ import { NoteModule } from './modules/note/note.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/user/user.module';
 import { ConfigModule } from '@nestjs/config';
+import { EventGateway } from './event.gateway';
 
 @Module({
   imports: [
@@ -29,6 +30,6 @@ import { ConfigModule } from '@nestjs/config';
     NoteModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, EventGateway],
 })
 export class AppModule {}

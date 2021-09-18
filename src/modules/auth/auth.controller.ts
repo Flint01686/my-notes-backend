@@ -11,6 +11,7 @@ import { LoginUserDto } from '../user/dto/login-user.dto';
 import { ResetPasswordDto } from '../user/dto/reset-password.dto';
 import { SendEmailDto } from '../user/dto/send-email.dto';
 import * as sgMail from '@sendgrid/mail';
+import { CLIENT_HOST } from 'src/constants';
 
 @Controller('auth')
 export class AuthController {
@@ -65,7 +66,7 @@ export class AuthController {
       subject:
         'This message just for u baby. U can restore password with link below',
       // text: 'and easy to do anywhere, even with Node.js',
-      html: `Click here to <a href="http://localhost:3000/resetpassword/${tokenData.token}">restore password</a>`,
+      html: `Click here to <a href="http://${CLIENT_HOST}/resetpassword/${tokenData.token}">restore password</a>`,
     };
 
     sgMail
