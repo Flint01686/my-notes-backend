@@ -66,7 +66,7 @@ export class AuthController {
       subject:
         'This message just for u baby. U can restore password with link below',
       // text: 'and easy to do anywhere, even with Node.js',
-      html: `Click here to <a href="http://${CLIENT_HOST}/resetpassword/${tokenData.token}">restore password</a>`,
+      html: `Click here to <a href="https://${CLIENT_HOST}/resetpassword/${tokenData.token}">restore password</a>`,
     };
 
     sgMail
