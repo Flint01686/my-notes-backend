@@ -1,17 +1,10 @@
-import {
-  Body,
-  Controller,
-  HttpException,
-  HttpStatus,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService, LoginStatus, RegistrationStatus } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginUserDto } from '../user/dto/login-user.dto';
 import { ResetPasswordDto } from '../user/dto/reset-password.dto';
 import { SendEmailDto } from '../user/dto/send-email.dto';
 import * as sgMail from '@sendgrid/mail';
-import { CLIENT_HOST } from 'src/constants';
 
 @Controller('auth')
 export class AuthController {
@@ -29,9 +22,6 @@ export class AuthController {
     const result: RegistrationStatus = await this.authService.register(
       createUserDto,
     );
-    // if (!result.success) {
-    //   throw new HttpException(result.message, HttpStatus.BAD_REQUEST);
-    // }
     return result;
   }
 
@@ -61,12 +51,11 @@ export class AuthController {
     console.log('td', tokenData, '/td');
 
     const msg = {
-      to: SendEmail.email, // Change to your recipient
-      from: 'kirill01686@gmail.com', // Change to your verified sender
+      to: SendEmail.email,
+      from: 'kirill01686@gmail.com',
       subject:
         'This message just for u baby. U can restore password with link below',
-      // text: 'and easy to do anywhere, even with Node.js',
-      html: `Click here to <a href="https://${CLIENT_HOST}/resetpassword/${tokenData.token}">restore password</a>`,
+      html: `Click here to <a href="${process.env.CLIENT_HOST}/resetpassword/${tokenData.token}">restore password</a>`,
     };
 
     sgMail

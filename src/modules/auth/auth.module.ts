@@ -3,7 +3,6 @@ import { AuthService } from './auth.service';
 import { UsersModule } from '../user/user.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConfig } from './constants';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -21,9 +20,9 @@ import { PassRestore } from './passwordRestore.entity';
       session: false,
     }),
     JwtModule.register({
-      secret: jwtConfig.secret,
+      secret: process.env.JWT_SECRET_KEY ?? 'd9cff2b5e2ba43babf7f10980a4f7e42',
       signOptions: {
-        expiresIn: jwtConfig.expiresIn,
+        expiresIn: process.env.JWT_EXPIRES ?? '24h',
       },
     }),
   ],

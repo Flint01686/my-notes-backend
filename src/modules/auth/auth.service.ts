@@ -5,7 +5,6 @@ import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginUserDto } from '../user/dto/login-user.dto';
 import { UserDto } from '../user/dto/user.dto';
 import { JwtPayload } from './jwt.strategy';
-import { jwtConfig } from './constants';
 import { ResetPasswordDto } from '../user/dto/reset-password.dto';
 import { PassRestore } from './passwordRestore.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -62,7 +61,7 @@ export class AuthService {
     const user: JwtPayload = { login };
     const accessToken = this.jwtService.sign(user);
     return {
-      expiresIn: jwtConfig.expiresIn,
+      expiresIn: process.env.JWT_EXPIRES,
       accessToken,
     };
   }

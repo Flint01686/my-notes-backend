@@ -1,6 +1,5 @@
 import { Logger, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-// import { AuthGuard } from '@nestjs/passport';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -10,17 +9,12 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { CLIENT_HOST } from './constants';
 
 @WebSocketGateway({
   cors: {
-    origin: `https://${CLIENT_HOST}`,
+    origin: process.env.CLIENT_HOST ?? 'http://localhost:3000',
     methods: ['GET', 'POST'],
-    allowedHeaders: [
-      '2911a686-181a-11ec-9621-0242ac130002',
-      'Authorization',
-      'authorization',
-    ],
+    allowedHeaders: ['Authorization', 'authorization'],
     credentials: true,
   },
 })
@@ -39,7 +33,7 @@ export class EventGateway
   }
 
   afterInit(server: Server) {
-    this.logger.log('wss ok, bruh ' + CLIENT_HOST);
+    this.logger.log('wss ok, bruh ' + process.env.CLIENT_HOST);
   }
 
   // @UseGuards(AuthGuard())

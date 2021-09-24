@@ -1,11 +1,8 @@
-import { Injectable, Req, Res } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brackets, DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { Brackets, Repository, UpdateResult } from 'typeorm';
 import { UserDto } from '../user/dto/user.dto';
 import { Note } from './note.entity';
-import * as fs from 'fs';
-import { join } from 'path';
-import { PUBLIC_PATH } from 'src/constants';
 import { deleteAwsImg } from './s3.service';
 
 const NOTE_ON_PAGE_COUNT = 9;
@@ -99,32 +96,6 @@ export class NoteService {
       .take(NOTE_ON_PAGE_COUNT)
       .getMany();
   }
-  // async findAllInPage(
-  //   { id }: UserDto,
-  //   page: number,
-  // ): Promise<{
-  //   allNotes: Note[];
-  //   pinnedNotes: Note[];
-  // }> {
-  //   return {
-  //     allNotes: await this.noteRepository
-  //       .createQueryBuilder('note')
-  //       .where('note.owner= :id', { id: id })
-  //       .orderBy({
-  //         'note.isPinned': 'DESC',
-  //         'note.id': 'DESC',
-  //       })
-  //       .skip(page * NOTE_ON_PAGE_COUNT)
-  //       .take(NOTE_ON_PAGE_COUNT)
-  //       .getMany(),
-  //     pinnedNotes: await this.noteRepository.find({
-  //       where: {
-  //         owner: id,
-  //         isPinned: true,
-  //       },
-  //     }),
-  //   };
-  // }
 
   findAll(): Promise<Note[]> {
     return this.noteRepository.find();
@@ -163,7 +134,6 @@ export class NoteService {
     if (Array.isArray(currentNote.attachments))
       currentNote.attachments.forEach((attach) => {
         if (!allAttacnments.includes(attach)) deleteAwsImg(attach);
-        // fs.unlinkSync(join(PUBLIC_PATH, attach));
       });
     const delRes = await this.noteRepository.delete(noteId);
     return delRes;
@@ -188,7 +158,6 @@ export class NoteService {
       return this.noteRepository.findOne(id).then((res) => {
         res.attachments.forEach((attach) => {
           if (!allAttacnments.includes(attach)) deleteAwsImg(attach);
-          // fs.unlinkSync(join(PUBLIC_PATH, attach));
         });
         return this.noteRepository.update(id, note);
       });

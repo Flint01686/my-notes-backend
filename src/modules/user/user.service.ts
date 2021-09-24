@@ -7,7 +7,6 @@ import { UserDto } from './dto/user.dto';
 import { toUserDto } from '../../shared/mapper';
 import { LoginUserDto } from './dto/login-user.dto';
 import * as bcrypt from 'bcrypt';
-import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class UsersService {
